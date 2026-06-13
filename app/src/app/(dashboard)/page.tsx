@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { format } from "date-fns";
 
 export const metadata: Metadata = {
@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 };
 
 async function getDashboardStats() {
-  const supabase = createClient();
+  const supabase = createServerSupabaseClient();
 
   const { data: verifications } = await supabase
-    .from("verifications")
-    .select("status", { count: "exact" });
+    .from("verification_requests")
+    .select("result", { count: "exact" });
 
   const { data: recentVerifications } = await supabase
-    .from("verifications")
+    .from("verification_requests")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(5);
