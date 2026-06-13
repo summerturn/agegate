@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — AgeGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0a0a0a; --bg-card: #1a1a1a; --border: #2a2a2a; --text: #fafafa; --text-muted: #a1a1aa; --text-dim: #52525b; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    .container { max-width: 720px; margin: 0 auto; padding: 80px 24px; }
+    h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .updated { color: var(--text-dim); font-size: 14px; margin-bottom: 48px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 48px 0 16px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    ul { color: var(--text-muted); margin: 16px 0; padding-left: 24px; }
+    li { margin-bottom: 8px; }
+    a { color: #22c55e; }
+    .back { display: inline-flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 14px; margin-bottom: 32px; transition: color 0.2s; }
+    .back:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back">← Back to AgeGate</a>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: June 12, 2025</p>
+
+    <h2>1. What We Collect</h2>
+    <p>AgeGate collects minimal data by design. We store:</p>
+    <ul>
+      <li><strong>Developer accounts:</strong> Email, app name, Stripe customer ID, plan tier, MAU usage.</li>
+      <li><strong>Verification requests:</strong> SHA-256 hash of user ID (not the actual ID), declared age, detected state, device platform, result (allowed/blocked/pending), timestamp.</li>
+      <li><strong>Consent records:</strong> SHA-256 hash of user ID, consent method, consent token, parent email (encrypted at rest), expiration date, verification status.</li>
+      <li><strong>API keys:</strong> Hashed key value, name, usage counters, timestamps.</li>
+    </ul>
+
+    <h2>2. What We Do NOT Collect</h2>
+    <ul>
+      <li>We do not store government ID photos. ID uploads are processed and immediately discarded after verification.</li>
+      <li>We do not store credit card numbers. All payment processing is handled by Stripe.</li>
+      <li>We do not track user behavior, location history, or app usage patterns.</li>
+      <li>We do not sell data to third parties. Ever.</li>
+    </ul>
+
+    <h2>3. How We Use Data</h2>
+    <p>Data is used solely for:</p>
+    <ul>
+      <li>Age verification and parental consent compliance</li>
+      <li>Audit logging for legal compliance (state laws require retention)</li>
+      <li>Billing and plan limit enforcement</li>
+      <li>Service improvement and debugging</li>
+    </ul>
+
+    <h2>4. Data Retention</h2>
+    <p>Retention periods are set per state law and are configurable in your dashboard:</p>
+    <ul>
+      <li>Texas: 365 days (or until consent expires, then deleted)</li>
+      <li>California: 365 days</li>
+      <li>Louisiana: 180 days</li>
+      <li>Utah: 90 days</li>
+    </ul>
+    <p>Consent records are hard-deleted after expiration. Verification requests are soft-deleted (marked but recoverable for 30 days for audit disputes, then purged).</p>
+
+    <h2>5. Security</h2>
+    <ul>
+      <li>All data encrypted in transit (TLS 1.3) and at rest (AES-256).</li>
+      <li>Row-Level Security (RLS) in PostgreSQL ensures developers only see their own data.</li>
+      <li>API keys are hashed with SHA-256 and never stored in plaintext after initial creation.</li>
+      <li>Infrastructure hosted on Supabase (AWS/GCP) with SOC 2 Type II compliance.</li>
+    </ul>
+
+    <h2>6. Your Rights</h2>
+    <p>Depending on your jurisdiction, you may have the right to:</p>
+    <ul>
+      <li>Access your data</li>
+      <li>Request deletion (subject to legal retention requirements)</li>
+      <li>Export your data</li>
+      <li>Correct inaccurate data</li>
+    </ul>
+    <p>Contact <a href="mailto:privacy@agegate.dev">privacy@agegate.dev</a> for data requests.</p>
+
+    <h2>7. Contact</h2>
+    <p>AgeGate is operated by Basemapped LLC. Questions? Email <a href="mailto:support@agegate.dev">support@agegate.dev</a>.</p>
+  </div>
+</body>
+</html>

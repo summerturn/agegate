@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgeGate — Age Verification SDK for App Compliance</title>
+  <meta name="description" content="Comply with Texas HB 18, California, Louisiana, and Utah age verification laws in 10 minutes. SDK + Dashboard for app developers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-elevated: #141414;
+      --bg-card: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --text-dim: #52525b;
+      --primary: #22c55e;
+      --primary-dim: #16a34a;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --max-width: 1200px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-primary:hover { background: #4ade80; transform: translateY(-1px); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-lg { padding: 16px 32px; font-size: 16px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .badge-urgent { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-green { background: rgba(34, 197, 94, 0.15); color: var(--primary); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .section { padding: 100px 0; }
+    .section-header { text-align: center; max-width: 640px; margin: 0 auto 64px; }
+    .section-header h2 { font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .section-header p { font-size: 18px; color: var(--text-muted); }
+
+    /* NAV */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo svg { width: 28px; height: 28px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { display: flex; gap: 12px; }
+
+    /* HERO */
+    .hero {
+      padding: 160px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%; right: -50%; bottom: -50%;
+      background: radial-gradient(ellipse at 50% 0%, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .hero-badge { margin-bottom: 24px; }
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .hero h1 span { color: var(--primary); }
+    .hero-desc {
+      font-size: 20px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 480px;
+    }
+    .hero-cta { display: flex; gap: 16px; margin-bottom: 48px; }
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .hero-trust svg { width: 20px; height: 20px; opacity: 0.5; }
+    .hero-visual {
+      position: relative;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      overflow: hidden;
+    }
+    .hero-visual-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-visual-header .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .hero-visual-header .dot-red { background: var(--danger); }
+    .hero-visual-header .dot-yellow { background: var(--accent); }
+    .hero-visual-header .dot-green { background: var(--primary); }
+    .hero-visual-body { padding: 24px; }
+    .code-block {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+    .code-block .k { color: #c678dd; }
+    .code-block .s { color: #98c379; }
+    .code-block .c { color: #5c6370; font-style: italic; }
+    .code-block .f { color: #61afef; }
+    .code-block .n { color: #e5c07b; }
+
+    /* URGENCY BAR */
+    .urgency {
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .urgency-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      font-size: 15px;
+    }
+    .urgency-inner strong { color: var(--danger); }
+    .countdown {
+      display: flex;
+      gap: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .countdown-item {
+      text-align: center;
+    }
+    .countdown-item .num {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--danger);
+    }
+    .countdown-item .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    /* HOW IT WORKS */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .step {
+      padding: 40px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      position: relative;
+    }
+    .step-num {
+      position: absolute;
+      top: -16px;
+      left: 40px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .step h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; margin-top: 8px; }
+    .step p { font-size: 15px; color: var(--text-muted); line-height: 1.7; }
+    .step-code {
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+
+    /* STATE MAP */
+    .states-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .state-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 32px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: all 0.2s;
+    }
+    .state-card:hover { border-color: var(--primary); }
+    .state-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      background: rgba(34, 197, 94, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .state-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .state-card .meta { font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
+    .state-card .desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+    .state-card .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .status-live { color: var(--primary); }
+    .status-warning { color: var(--accent); }
+    .status-danger { color: var(--danger); }
+
+    /* DASHBOARD PREVIEW */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+    .preview-text h2 { font-size: 40px; font-weight: 800; margin-bottom: 20px; }
+    .preview-text p { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; }
+    .preview-features { display: flex; flex-direction: column; gap: 20px; }
+    .preview-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .preview-feature svg {
+      width: 24px;
+      height: 24px;
+      color: var(--primary);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .preview-feature h4 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .preview-feature p { font-size: 14px; color: var(--text-muted); margin: 0; }
+    .preview-image {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      overflow: hidden;
+      aspect-ratio: 16/10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .preview-image::after {
+      content: 'Dashboard Preview';
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .pricing-card {
+      padding: 40px 32px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .pricing-card.popular {
+      border-color: var(--primary);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.1);
+    }
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 16px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #000;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pricing-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .pricing-card .price {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .pricing-card .price span {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+    .pricing-card .mau { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+    .pricing-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+    .pricing-card li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .pricing-card li svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .pricing-card .btn { width: 100%; justify-content: center; }
+
+    /* FAQ */
+    .faq-list { max-width: 800px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .faq-item summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      list-style: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font-size: 24px;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+    }
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+    .faq-item p {
+      margin-top: 16px;
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      padding-right: 40px;
+    }
+
+    /* FOOTER */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 64px 0 32px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 64px;
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .footer-brand svg { width: 24px; height: 24px; }
+    .footer-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 280px;
+    }
+    .footer-col h4 {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .footer-col a {
+      display: block;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* MOBILE */
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 48px; }
+      .steps { grid-template-columns: 1fr; }
+      .states-grid { grid-template-columns: 1fr; }
+      .preview-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 36px; }
+      .section-header h2 { font-size: 28px; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#" class="nav-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        AgeGate
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it Works</a>
+        <a href="#states">States</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-cta">
+        <a href="/login" class="btn btn-secondary">Sign In</a>
+        <a href="/login" class="btn btn-primary">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-badge">
+            <span class="badge badge-urgent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              Texas HB 18 effective Jan 1, 2026
+            </span>
+          </div>
+          <h1>Don't let state laws <span>kill your app</span></h1>
+          <p class="hero-desc">
+            Age verification SDK + compliance dashboard for Texas, California, Louisiana, and Utah. Install in 10 minutes. Sleep soundly.
+          </p>
+          <div class="hero-cta">
+            <a href="/login" class="btn btn-primary btn-lg">Start Free — No Credit Card</a>
+            <a href="#how" class="btn btn-secondary btn-lg">See How It Works</a>
+          </div>
+          <div class="hero-trust">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            SOC 2 Type II Pending
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            No PII Stored — Only Hashes
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Built on Supabase
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-visual-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span style="margin-left: auto; font-size: 12px; color: var(--text-dim);">app.tsx</span>
+          </div>
+          <div class="hero-visual-body">
+            <div class="code-block">
+<span class="k">import</span> { <span class="n">AgeGate</span> } <span class="k">from</span> <span class="s">'agegate-sdk'</span>;<br><br>
+<span class="k">const</span> <span class="n">ageGate</span> = <span class="k">new</span> <span class="f">AgeGate</span>({<br>
+&nbsp;&nbsp;apiKey: <span class="s">'ag_live_...'</span>,<br>
+&nbsp;&nbsp;environment: <span class="s">'production'</span><br>
+});<br><br>
+<span class="c">// One line. Full compliance.</span><br>
+<span class="k">const</span> <span class="n">result</span> = <span class="k">await</span> <span class="n">ageGate</span>.<span class="f">verify</span>({<br>
+&nbsp;&nbsp;userId: <span class="n">user</span>.id,<br>
+&nbsp;&nbsp;declaredAge: <span class="n">age</span>,<br>
+&nbsp;&nbsp;stateHint: <span class="s">'TX'</span><br>
+});
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- URGENCY -->
+  <div class="urgency">
+    <div class="container urgency-inner">
+      <span><strong>Texas HB 18</strong> goes live in:</span>
+      <div class="countdown" id="countdown">
+        <div class="countdown-item"><div class="num" id="days">--</div><div class="label">Days</div></div>
+        <div class="countdown-item"><div class="num" id="hours">--</div><div class="label">Hours</div></div>
+        <div class="countdown-item"><div class="num" id="minutes">--</div><div class="label">Minutes</div></div>
+        <div class="countdown-item"><div class="num" id="seconds">--</div><div class="label">Seconds</div></div>
+      </div>
+      <span style="color: var(--text-dim);">Social apps must verify age + get parental consent for minors</span>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-header">
+        <h2>Comply in 3 steps</h2>
+        <p>No legal team required. No weeks of dev work. Just install, configure, and you're covered.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Install the SDK</h3>
+          <p>Add one package to your React Native, Expo, or Flutter app. Works with any backend.</p>
+          <div class="step-code">npm install agegate-sdk</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Configure States</h3>
+          <p>Toggle which states you operate in. We auto-configure minimum ages, consent methods, and data retention per state law.</p>
+          <div class="step-code">Dashboard → Compliance Config</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Call verify()</h3>
+          <p>One API call on signup or app launch. We handle age checks, parental consent flows, and audit logging.</p>
+          <div class="step-code">await ageGate.verify({ userId, age })</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATES -->
+  <section class="section" id="states" style="background: var(--bg-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <h2>State-by-state coverage</h2>
+        <p>Every state law is different. We track effective dates, minimum ages, consent methods, and data retention so you don't have to.</p>
+      </div>
+      <div class="states-grid">
+        <div class="state-card">
+          <div class="state-icon">TX</div>
+          <div>
+            <h3>Texas HB 18</h3>
+            <div class="meta">Effective January 1, 2026</div>
+            <div class="desc">Minimum age 13. Parental consent required for minors. All verification data must be deleted after consent expires. <strong>Most urgent.</strong></div>
+            <div class="status status-danger">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+              Live Now — Immediate Action Required
+            </div>
+          </div>
+        </div>
+        <div class="state-card">
+          <div class="state-icon">UT</div>
+          <div>
+            <h3>Utah SB 152</h3>
+            <div class="meta">Effective May 1, 2026</div>
+            <div class="desc">Strictest requirements. Credit card or government ID required for parental consent. 90-day data retention limit.</div>
+            <div class="status status-warning">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+              Coming Soon — 5 Months
+            </div>
+          </div>
+        </div>
+        <div class="state-card">
+          <div class="state-icon">LA</div>
+          <div>
+            <h3>Louisiana</h3>
+            <div class="meta">Effective July 1, 2026</div>
+            <div class="desc">Minimum age 18 for social media apps. Parental consent required. 180-day data retention. Higher bar than other states.</div>
+            <div class="status status-warning">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+              Coming Soon — 7 Months
+            </div>
+          </div>
+        </div>
+        <div class="state-card">
+          <div class="state-icon">CA</div>
+          <div>
+            <h3>California</h3>
+            <div class="meta">Effective January 1, 2027</div>
+            <div class="desc">Similar to Texas but delayed. Advisory mode until enforcement. 365-day retention. Email or credit card consent.</div>
+            <div class="status status-live">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+              Advisory Mode — Prepare Now
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD PREVIEW -->
+  <section class="section">
+    <div class="container">
+      <div class="preview-grid">
+        <div class="preview-text">
+          <h2>See everything in one place</h2>
+          <p>Real-time analytics, audit logs, compliance config, and billing — all in a dark-mode dashboard built for developers who check stats on their phone.</p>
+          <div class="preview-features">
+            <div class="preview-feature">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-6"/></svg>
+              <div>
+                <h4>Real-time Analytics</h4>
+                <p>Verifications, block rate, pending consents, and unique users over time.</p>
+              </div>
+            </div>
+            <div class="preview-feature">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+              <div>
+                <h4>Audit-Ready Logs</h4>
+                <p>Every verification request logged with state, result, and reason. Export to CSV for compliance audits.</p>
+              </div>
+            </div>
+            <div class="preview-feature">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <div>
+                <h4>Row-Level Security</h4>
+                <p>Supabase RLS ensures you only see your data. API keys are hashed. Nothing leaks.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="preview-image"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing" style="background: var(--bg-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Simple pricing</h2>
+        <p>Start free. Upgrade when Texas knocks. No surprise bills.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Free</h3>
+          <div class="price">$0<span>/mo</span></div>
+          <div class="mau">Up to 1,000 MAU</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Basic analytics</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Email support</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>100 req/min rate limit</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>All 4 states</li>
+          </ul>
+          <a href="/login" class="btn btn-secondary">Get Started</a>
+        </div>
+        <div class="pricing-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <h3>Indie</h3>
+          <div class="price">$49<span>/mo</span></div>
+          <div class="mau">Up to 10,000 MAU</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Advanced analytics</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Priority support</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>CSV exports</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>1,000 req/min</li>
+          </ul>
+          <a href="/login" class="btn btn-primary">Start Free Trial</a>
+        </div>
+        <div class="pricing-card">
+          <h3>Pro</h3>
+          <div class="price">$149<span>/mo</span></div>
+          <div class="mau">Up to 100,000 MAU</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Real-time logs</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Custom data retention</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Webhook alerts</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>1,000 req/min</li>
+          </ul>
+          <a href="/login" class="btn btn-secondary">Start Free Trial</a>
+        </div>
+        <div class="pricing-card">
+          <h3>Enterprise</h3>
+          <div class="price">$499<span>/mo</span></div>
+          <div class="mau">Unlimited MAU</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Dedicated support</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Custom SLA</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>On-prem option</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Unlimited rate</li>
+          </ul>
+          <a href="/login" class="btn btn-secondary">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2>Questions developers ask</h2>
+        <p>Everything you need to know before your legal team asks.</p>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>What happens if I don't comply with Texas HB 18?</summary>
+          <p>Texas can fine your company $10,000 per violation and force removal from app stores. The law applies to any app with 50%+ social features accessed by Texas users. Don't risk it — compliance takes 10 minutes with AgeGate.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do you store personal information?</summary>
+          <p>No. We hash user IDs with SHA-256 and store only the hash. Declared ages are stored as numbers, not tied to identity. Parent emails in consent records are encrypted at rest. We designed for privacy-first compliance.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How does parental consent work?</summary>
+          <p>Three methods: (1) Email verification link sent to parent, (2) Small $0.30 credit card charge (immediately refunded) to verify adult status, (3) Government ID photo upload. The method is auto-selected based on state strictness.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What if a state law changes?</summary>
+          <p>We monitor all pending legislation. When laws change, we update the SDK and edge functions automatically. Your app gets the new rules without a code change — just the compliance config updates in our dashboard.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I self-host?</summary>
+          <p>Enterprise plans include on-premise deployment. The entire stack is open-source: Supabase PostgreSQL + Edge Functions + Next.js dashboard. You can run it in your own infrastructure with a support contract.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What platforms does the SDK support?</summary>
+          <p>React Native, Expo, and Flutter today. Pure JavaScript/TypeScript SDK for web apps coming next. iOS and Android native wrappers are on the Enterprise roadmap. The API is REST-based so any platform can call it directly.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" style="text-align: center; padding: 80px 0;">
+    <div class="container">
+      <h2 style="font-size: 48px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em;">Ready to comply?</h2>
+      <p style="font-size: 20px; color: var(--text-muted); margin-bottom: 40px; max-width: 560px; margin-left: auto; margin-right: auto;">
+        Join developers who aren't waiting for a cease-and-desist letter. Start free, upgrade when you need to.
+      </p>
+      <a href="/login" class="btn btn-primary btn-lg">Create Free Account</a>
+      <p style="margin-top: 16px; font-size: 14px; color: var(--text-dim);">No credit card required. Texas-ready in 10 minutes.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+            AgeGate
+          </div>
+          <p class="footer-desc">Age verification SDK and compliance dashboard for app developers. Built on Supabase, designed for speed.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#how">How it Works</a>
+          <a href="#states">State Laws</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="/docs">Documentation</a>
+          <a href="https://github.com/agegate/agegate-sdk">SDK on GitHub</a>
+          <a href="/login">Dashboard</a>
+          <a href="#">API Reference</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/dpa">Data Processing Agreement</a>
+          <a href="mailto:support@agegate.dev">Contact</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 AgeGate. All rights reserved.</span>
+        <span>Not legal advice. Consult your attorney for compliance guidance.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Countdown to Jan 1, 2026
+    function updateCountdown() {
+      const target = new Date('2026-01-01T00:00:00-06:00'); // Texas timezone
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) {
+        document.getElementById('days').textContent = '0';
+        document.getElementById('hours').textContent = '0';
+        document.getElementById('minutes').textContent = '0';
+        document.getElementById('seconds').textContent = '0';
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      document.getElementById('days').textContent = days;
+      document.getElementById('hours').textContent = hours;
+      document.getElementById('minutes').textContent = minutes;
+      document.getElementById('seconds').textContent = seconds;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
