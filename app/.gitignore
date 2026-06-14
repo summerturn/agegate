@@ -1,4 +1,4 @@
-.next/\nnode_modules/\npackage-lock.json\nnext-env.d.ts
+.next/
 node_modules/
 package-lock.json
 next-env.d.ts
