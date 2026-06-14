@@ -100,7 +100,7 @@ export default function KeysPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">API Keys</h1>
         <p className="text-muted-foreground">
-          Manage your API keys for integrating AgeGate into your applications.
+          Manage your API keys for integrating Copply into your applications.
         </p>
       </div>
 

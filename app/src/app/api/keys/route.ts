@@ -12,7 +12,7 @@ function getAdminClient() {
 async function generateApiKey(): Promise<string> {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return "ag_" + Array.from(array).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return "cp_" + Array.from(array).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 async function hashKey(key: string): Promise<string> {
@@ -43,7 +43,7 @@ export async function GET() {
       (keys || []).map((k) => ({
         id: k.id,
         name: k.name,
-        key: "ag_••••••••",
+        key: "cp_••••••••",
         createdAt: k.created_at,
         lastUsedAt: k.last_used_at,
         requestsToday: k.requests_today,

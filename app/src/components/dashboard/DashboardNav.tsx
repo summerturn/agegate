@@ -33,7 +33,7 @@ export function DashboardNav({ user }: { user: User }) {
       <div className="p-6 border-b">
         <div className="flex items-center gap-2">
           <Shield className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">AgeGate</span>
+          <span className="text-xl font-bold">Copply</span>
         </div>
         <p className="text-xs text-muted-foreground mt-1">Developer Dashboard</p>
       </div>

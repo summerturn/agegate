@@ -1,9 +1,9 @@
-export { AgeGate } from './AgeGate';
+export { Copply } from './Copply';
 export * from './types';
 export * from './utils/errors';
-export { AgeGateConsentModal } from './components/AgeGateConsentModal';
+export { CopplyConsentModal } from './components/CopplyConsentModal';
 export { EmailConsentFlow } from './components/EmailConsentFlow';
 export { CreditCardConsentFlow } from './components/CreditCardConsentFlow';
 export { IDUploadConsentFlow } from './components/IDUploadConsentFlow';
 
-export type { AgeGate as AgeGateClass } from './AgeGate';
+export type { Copply as CopplyClass } from './Copply';

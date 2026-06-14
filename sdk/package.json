@@ -1,7 +1,7 @@
 {
-  "name": "@agegate/sdk",
+  "name": "@copply/sdk",
   "version": "1.0.0",
-  "description": "AgeGate SDK for age verification",
+  "description": "Copply SDK — age compliance API for US state laws",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -34,14 +34,19 @@
   },
   "keywords": [
     "age-verification",
-    "age-gate",
-    "compliance",
+    "age-compliance",
     "coppa",
-    "gdpr"
+    "parental-consent",
+    "texas-hb18",
+    "utah-sb152",
+    "louisiana-hb570",
+    "state-law-compliance",
+    "developer-sdk"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agegate/sdk"
-  }
+    "url": "https://github.com/copply/sdk"
+  },
+  "homepage": "https://copply.dev"
 }

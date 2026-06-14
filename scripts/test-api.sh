@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # ==========================================
-# AgeGate — API Testing Script
+# Copply — API Testing Script
 # Usage: ./scripts/test-api.sh <API_KEY>
 # ==========================================
 
 set -euo pipefail
 
 API_KEY="${1:-}"
-BASE_URL="${BASE_URL:-https://api.agegate.dev}"
+BASE_URL="${BASE_URL:-https://api.copply.dev}"
 
 if [ -z "$API_KEY" ]; then
   echo "Usage: $0 <API_KEY>"
-  echo "Example: $0 agegate_live_xxxxxxxxxxxxxxxx"
+  echo "Example: $0 copply_live_xxxxxxxxxxxxxxxx"
   exit 1
 fi
 
-echo "🧪 Testing AgeGate API at $BASE_URL"
+echo "🧪 Testing Copply API at $BASE_URL"
 echo "================================================"
 
 # 1. Health check

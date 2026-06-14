@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "=== AgeGate Deployment Script ==="
-echo "This script deploys the AgeGate project to production"
+echo "=== Copply Deployment Script ==="
+echo "This script deploys the Copply project to production"
 echo ""
 
 # Check prerequisites

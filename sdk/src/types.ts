@@ -2,7 +2,7 @@ export type VerificationMethod = 'email' | 'credit_card' | 'id_upload' | 'phone'
 
 export type VerificationStatus = 'pending' | 'verified' | 'denied' | 'expired' | 'requires_parental_consent';
 
-export interface AgeGateConfig {
+export interface CopplyConfig {
   supabaseUrl: string;
   apiKey: string;
   minimumAge?: number;
@@ -34,7 +34,7 @@ export interface VerificationResult {
   consentId?: string;
 }
 
-export interface AgeGateEvent {
+export interface CopplyEvent {
   type: 'verified' | 'denied' | 'error' | 'parentalConsentRequested' | 'dataDeleted' | 'ready';
   data: any;
   timestamp: string;

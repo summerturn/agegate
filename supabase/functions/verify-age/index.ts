@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { crypto } from 'https://deno.land/std@0.207.0/crypto/mod.ts';
 
-// State law configurations
 const STATE_LAWS: Record<string, {
   minAge: number;
   parentalConsentRequired: boolean;
@@ -27,7 +26,7 @@ const STATE_LAWS: Record<string, {
     dataRetentionDays: 365,
     consentMethods: ['email', 'creditcard'],
     strictness: 'medium',
-    note: 'California - Effective Jan 1, 2027 (warning if not yet enforced)',
+    note: 'California AB 1043 - Effective Jan 1, 2027',
   },
   LA: {
     minAge: 18,
@@ -36,7 +35,7 @@ const STATE_LAWS: Record<string, {
     dataRetentionDays: 180,
     consentMethods: ['email', 'creditcard', 'idupload'],
     strictness: 'high',
-    note: 'Louisiana - Effective Jul 1, 2026. Min age 18 for social apps.',
+    note: 'Louisiana HB 570 - Effective Jul 1, 2026. Min age 18.',
   },
   UT: {
     minAge: 13,
@@ -45,7 +44,25 @@ const STATE_LAWS: Record<string, {
     dataRetentionDays: 90,
     consentMethods: ['creditcard', 'idupload'],
     strictness: 'high',
-    note: 'Utah SB 152 - Effective May 1, 2026. Strictest: credit card or govt ID required for minors.',
+    note: 'Utah SB 152 - Effective May 1, 2026. Credit card or ID required.',
+  },
+  FL: {
+    minAge: 14,
+    parentalConsentRequired: true,
+    effectiveDate: '2026-07-01',
+    dataRetentionDays: 365,
+    consentMethods: ['email', 'creditcard'],
+    strictness: 'medium',
+    note: 'Florida HB 3 - Effective Jul 1, 2026.',
+  },
+  AR: {
+    minAge: 13,
+    parentalConsentRequired: true,
+    effectiveDate: '2026-09-01',
+    dataRetentionDays: 365,
+    consentMethods: ['creditcard', 'idupload'],
+    strictness: 'high',
+    note: 'Arkansas SB 396 - Effective Sep 1, 2026.',
   },
   Federal: {
     minAge: 13,
@@ -64,6 +81,7 @@ interface VerifyRequest {
   declaredAge?: number;
   devicePlatform?: string;
   stateHint?: string;
+  testMode?: boolean;
 }
 
 interface VerifyResult {
@@ -74,9 +92,10 @@ interface VerifyResult {
   reason: string;
   state: string;
   warning?: string;
+  lawNote?: string;
+  testMode?: boolean;
 }
 
-// Hash API key for lookup
 async function hashKey(key: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(key);
@@ -85,14 +104,41 @@ async function hashKey(key: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// CORS headers
+async function detectStateFromIP(req: Request): Promise<string | null> {
+  // 1. Cloudflare provides CF-IPRegion for US states
+  const cfRegion = req.headers.get('cf-ipcountry');
+  if (cfRegion && cfRegion !== 'US') return null; // Non-US — use Federal
+
+  const cfState = req.headers.get('cf-region-code'); // e.g. "TX"
+  if (cfState && STATE_LAWS[cfState]) return cfState;
+
+  // 2. Fallback: IP geolocation via ipapi.co
+  const ip = req.headers.get('cf-connecting-ip') ||
+              req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (!ip || ip === '127.0.0.1' || ip.startsWith('192.168')) return null;
+
+  try {
+    const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (geoRes.ok) {
+      const geo = await geoRes.json();
+      if (geo.country_code === 'US' && geo.region_code && STATE_LAWS[geo.region_code]) {
+        return geo.region_code;
+      }
+    }
+  } catch {
+    // Geolocation failed — fall through to Federal default
+  }
+  return null;
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -112,7 +158,23 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 1. Validate API key
+    // Support test mode: keys starting with cp_test_ bypass DB and return synthetic results
+    const isTestMode = apiKey.startsWith('cp_test_');
+    if (isTestMode) {
+      const state = stateHint?.toUpperCase() || 'TX';
+      const stateLaw = STATE_LAWS[state] || STATE_LAWS['Federal'];
+      const age = declaredAge || 0;
+      const allowed = age >= stateLaw.minAge && !(age < 18 && stateLaw.strictness === 'high');
+      return new Response(JSON.stringify({
+        allowed,
+        requiresConsent: !allowed && stateLaw.parentalConsentRequired,
+        reason: allowed ? `[TEST] Age ${age} passes ${state} minimum ${stateLaw.minAge}` : `[TEST] Age ${age} blocked by ${state} law`,
+        state,
+        testMode: true,
+        lawNote: stateLaw.note,
+      }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const keyHash = await hashKey(apiKey);
     const { data: keyData, error: keyError } = await supabase
       .from('api_keys')
@@ -120,100 +182,83 @@ Deno.serve(async (req) => {
       .eq('key_hash', keyHash)
       .single();
 
-    if (keyError || !keyData) {
+    if (keyError || !keyData || keyData.revoked_at) {
       return new Response(
         JSON.stringify({ error: 'INVALID_API_KEY', message: 'Invalid or revoked API key' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (keyData.revoked_at) {
-      return new Response(
-        JSON.stringify({ error: 'INVALID_API_KEY', message: 'API key has been revoked' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const developerId = keyData.developer_id;
 
-    // 2. Check plan limits
-    const { data: devData, error: devError } = await supabase
+    const { data: devData } = await supabase
       .from('developers')
       .select('plan_tier, mau_limit, mau_current')
       .eq('id', developerId)
       .single();
 
-    if (devError || !devData) {
+    if (!devData) {
       return new Response(
         JSON.stringify({ error: 'INVALID_API_KEY', message: 'Developer account not found' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Rate limiting
-    const rateLimit = devData.plan_tier === 'free' ? 100 : 1000;
+    const rateLimit = devData.plan_tier === 'free' ? 200 : 2000;
     if (keyData.requests_today >= rateLimit) {
       return new Response(
-        JSON.stringify({ error: 'RATE_LIMITED', message: `Daily rate limit exceeded (${rateLimit}/day). Upgrade your plan.` }),
+        JSON.stringify({ error: 'RATE_LIMITED', message: `Daily rate limit (${rateLimit}/day). Upgrade at copply.dev` }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // MAU limit check
     if (devData.mau_current >= devData.mau_limit) {
       return new Response(
-        JSON.stringify({ error: 'RATE_LIMITED', message: `MAU limit exceeded (${devData.mau_limit}). Upgrade your plan.` }),
+        JSON.stringify({ error: 'RATE_LIMITED', message: `MAU limit (${devData.mau_limit}). Upgrade at copply.dev` }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 3. Get developer's compliance config
-    const { data: config, error: configError } = await supabase
+    const { data: config } = await supabase
       .from('compliance_configs')
       .select('*')
       .eq('developer_id', developerId)
       .single();
 
-    if (configError || !config) {
+    if (!config) {
       return new Response(
-        JSON.stringify({ error: 'CONFIG_NOT_FOUND', message: 'Compliance configuration not found' }),
+        JSON.stringify({ error: 'CONFIG_NOT_FOUND', message: 'Compliance config missing' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 4. Detect state
-    let detectedState = stateHint?.toUpperCase() || 'TX';
-    // TODO: Auto-detect from IP/geolocation if stateHint is null
-    // For now, default to TX if not provided
+    // Auto-detect state from IP if not provided
+    let detectedState = stateHint?.toUpperCase();
+    let geoDetected = false;
     if (!detectedState) {
-      detectedState = 'TX';
+      const geoState = await detectStateFromIP(req);
+      if (geoState) {
+        detectedState = geoState;
+        geoDetected = true;
+      } else {
+        detectedState = 'Federal';
+      }
     }
 
-    // Check if state is enabled in config
     const statesEnabled = config.states_enabled || [];
     if (!statesEnabled.includes(detectedState) && !statesEnabled.includes('Federal')) {
       return new Response(
-        JSON.stringify({ error: 'STATE_NOT_SUPPORTED', message: `State ${detectedState} is not enabled in your compliance config` }),
+        JSON.stringify({ error: 'STATE_NOT_SUPPORTED', message: `State ${detectedState} not enabled in your config` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 5. Apply state law
     const stateLaw = STATE_LAWS[detectedState] || STATE_LAWS['Federal'];
-    const now = new Date();
-    const effectiveDate = new Date(stateLaw.effectiveDate);
-    const isEnforced = now >= effectiveDate;
-
-    let result: VerifyResult = {
-      allowed: false,
-      requiresConsent: false,
-      reason: '',
-      state: detectedState,
-    };
-
-    // Age check
+    const isEnforced = new Date() >= new Date(stateLaw.effectiveDate);
     const minAge = config.minimum_age || stateLaw.minAge;
     const userAge = declaredAge || 0;
+
+    let result: VerifyResult;
 
     if (!declaredAge) {
       result = {
@@ -223,6 +268,7 @@ Deno.serve(async (req) => {
         consentDeadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         reason: 'Age not declared — parental consent required',
         state: detectedState,
+        lawNote: stateLaw.note,
       };
     } else if (userAge < minAge) {
       result = {
@@ -230,11 +276,11 @@ Deno.serve(async (req) => {
         requiresConsent: stateLaw.parentalConsentRequired,
         consentMethod: stateLaw.consentMethods[0],
         consentDeadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        reason: `Underage: declared ${userAge}, minimum ${minAge} for ${detectedState}`,
+        reason: `Underage: ${userAge} < ${minAge} minimum for ${detectedState}`,
         state: detectedState,
+        lawNote: stateLaw.note,
       };
     } else if (userAge < 18 && stateLaw.parentalConsentRequired && stateLaw.strictness === 'high') {
-      // High strictness states require consent for minors under 18
       result = {
         allowed: false,
         requiresConsent: true,
@@ -242,22 +288,22 @@ Deno.serve(async (req) => {
         consentDeadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         reason: `${detectedState} requires parental consent for users under 18`,
         state: detectedState,
+        lawNote: stateLaw.note,
       };
-    } else if (userAge >= minAge) {
+    } else {
       result = {
         allowed: true,
         requiresConsent: false,
-        reason: `Age verification passed: ${userAge} >= ${minAge}`,
+        reason: `Verified: age ${userAge} satisfies ${detectedState} minimum ${minAge}${geoDetected ? ' (state auto-detected)' : ''}`,
         state: detectedState,
+        lawNote: stateLaw.note,
       };
     }
 
-    // Add warning if law not yet enforced
     if (!isEnforced) {
-      result.warning = `${detectedState} law not yet enforced (effective ${stateLaw.effectiveDate}). Currently operating in advisory mode.`;
+      result.warning = `${detectedState} law not yet enforced (effective ${stateLaw.effectiveDate}). Advisory mode.`;
     }
 
-    // 6. Log to verification_requests
     const userIdHash = await hashKey(userId + developerId);
     await supabase.from('verification_requests').insert({
       developer_id: developerId,
@@ -271,14 +317,12 @@ Deno.serve(async (req) => {
       reason: result.reason,
     });
 
-    // 7. Increment API counters
     await supabase.from('api_keys').update({
       requests_today: keyData.requests_today + 1,
       requests_this_month: keyData.requests_this_month + 1,
       last_used_at: new Date().toISOString(),
     }).eq('id', keyData.id);
 
-    // 8. Increment MAU if new user (simplified — in production, check if user_id_hash exists for this month)
     await supabase.rpc('increment_mau', { dev_id: developerId });
 
     return new Response(
@@ -287,7 +331,7 @@ Deno.serve(async (req) => {
     );
 
   } catch (err) {
-    console.error('verify-age error:', err);
+    console.error('copply verify-age error:', err);
     return new Response(
       JSON.stringify({ error: 'INTERNAL_ERROR', message: err.message || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { AgeGate } from '../AgeGate';
+import { Copply } from '../Copply';
 import { VerificationMethod, VerificationResult } from '../types';
 import { EmailConsentFlow } from './EmailConsentFlow';
 import { CreditCardConsentFlow } from './CreditCardConsentFlow';
 import { IDUploadConsentFlow } from './IDUploadConsentFlow';
 
-interface AgeGateConsentModalProps {
-  ageGate: AgeGate;
+interface CopplyConsentModalProps {
+  ageGate: Copply;
   isOpen: boolean;
   onClose: () => void;
   onVerified: (result: VerificationResult) => void;
@@ -24,7 +24,7 @@ interface AgeGateConsentModalProps {
   };
 }
 
-export const AgeGateConsentModal: React.FC<AgeGateConsentModalProps> = ({
+export const CopplyConsentModal: React.FC<CopplyConsentModalProps> = ({
   ageGate,
   isOpen,
   onClose,

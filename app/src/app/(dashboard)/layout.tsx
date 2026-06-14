@@ -5,7 +5,7 @@ import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 export const metadata: Metadata = {
-  title: "AgeGate Dashboard",
+  title: "Copply Dashboard",
   description: "Manage your age verification settings and analytics",
 };
 

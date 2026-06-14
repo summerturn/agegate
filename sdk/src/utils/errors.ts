@@ -1,58 +1,58 @@
-export class AgeGateError extends Error {
+export class CopplyError extends Error {
   constructor(message: string, public cause?: any) {
     super(message);
-    this.name = 'AgeGateError';
+    this.name = 'CopplyError';
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AgeGateError);
+      Error.captureStackTrace(this, CopplyError);
     }
   }
 }
 
-export class ValidationError extends AgeGateError {
+export class ValidationError extends CopplyError {
   constructor(message: string, cause?: any) {
     super(message, cause);
     this.name = 'ValidationError';
   }
 }
 
-export class NetworkError extends AgeGateError {
+export class NetworkError extends CopplyError {
   constructor(message: string, cause?: any) {
     super(message, cause);
     this.name = 'NetworkError';
   }
 }
 
-export class VerificationError extends AgeGateError {
+export class VerificationError extends CopplyError {
   constructor(message: string, cause?: any) {
     super(message, cause);
     this.name = 'VerificationError';
   }
 }
 
-export class SessionError extends AgeGateError {
+export class SessionError extends CopplyError {
   constructor(message: string, cause?: any) {
     super(message, cause);
     this.name = 'SessionError';
   }
 }
 
-export class ConsentError extends AgeGateError {
+export class ConsentError extends CopplyError {
   constructor(message: string, cause?: any) {
     super(message, cause);
     this.name = 'ConsentError';
   }
 }
 
-export class ConfigurationError extends AgeGateError {
+export class ConfigurationError extends CopplyError {
   constructor(message: string, cause?: any) {
     super(message, cause);
     this.name = 'ConfigurationError';
   }
 }
 
-export function isAgeGateError(error: any): error is AgeGateError {
-  return error instanceof AgeGateError ||
-    (error && typeof error === 'object' && error.name && error.name.startsWith('AgeGate'));
+export function isCopplyError(error: any): error is CopplyError {
+  return error instanceof CopplyError ||
+    (error && typeof error === 'object' && error.name && error.name.startsWith('Copply'));
 }
 
 export function handleError(error: any): { message: string; code: string; status: number } {
@@ -74,7 +74,7 @@ export function handleError(error: any): { message: string; code: string; status
   if (error instanceof ConfigurationError) {
     return { message: error.message, code: 'CONFIGURATION_ERROR', status: 500 };
   }
-  if (error instanceof AgeGateError) {
+  if (error instanceof CopplyError) {
     return { message: error.message, code: 'AGEGATE_ERROR', status: 500 };
   }
   return { message: 'An unexpected error occurred', code: 'UNKNOWN_ERROR', status: 500 };

@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AgeGate — Age Verification SDK",
+  title: "Copply — Age Verification SDK",
   description: "Compliance-first age verification for developers",
 };
 

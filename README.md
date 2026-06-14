@@ -1,8 +1,8 @@
-# AgeGate — Age Verification Compliance SDK
+# Copply — Age Verification Compliance SDK
 
 **Comply with Texas HB 18, California, Louisiana, and Utah age verification laws in 10 minutes.**
 
-AgeGate is a drop-in SDK + dashboard for app developers who need legally compliant age verification without building it from scratch.
+Copply is a drop-in SDK + dashboard for app developers who need legally compliant age verification without building it from scratch.
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -13,21 +13,21 @@ AgeGate is a drop-in SDK + dashboard for app developers who need legally complia
 ### 1. Install the SDK
 
 ```bash
-npm install @agegate/sdk
+npm install @copply/sdk
 # or
-yarn add @agegate/sdk
+yarn add @copply/sdk
 ```
 
 ### 2. Initialize in your app
 
 ```tsx
-import { AgeGateProvider } from '@agegate/sdk';
+import { CopplyProvider } from '@copply/sdk';
 
 function App() {
   return (
-    <AgeGateProvider apiKey="agegate_live_xxx" region="TX">
+    <CopplyProvider apiKey="copply_live_xxx" region="TX">
       <YourApp />
-    </AgeGateProvider>
+    </CopplyProvider>
   );
 }
 ```
@@ -35,18 +35,18 @@ function App() {
 ### 3. Wrap restricted content
 
 ```tsx
-import { AgeGate } from '@agegate/sdk';
+import { Copply } from '@copply/sdk';
 
 function MatureContent() {
   return (
-    <AgeGate minimumAge={18} fallback={<BlockedScreen />}>
+    <Copply minimumAge={18} fallback={<BlockedScreen />}>
       <RestrictedContent />
-    </AgeGate>
+    </Copply>
   );
 }
 ```
 
-That's it. AgeGate handles the modal, verification methods, state-specific rules, audit logging, and consent capture.
+That's it. Copply handles the modal, verification methods, state-specific rules, audit logging, and consent capture.
 
 ---
 
@@ -74,14 +74,14 @@ That's it. AgeGate handles the modal, verification methods, state-specific rules
 - **Utah** — SB 152 / SB 287
 - **Federal** — COPPA (13+)
 
-Each state has its own minimum age, required verification methods, and parental consent rules. AgeGate automatically applies the correct rules based on the user's region.
+Each state has its own minimum age, required verification methods, and parental consent rules. Copply automatically applies the correct rules based on the user's region.
 
 ---
 
 ## Project Structure
 
 ```
-agegate/
+copply/
 ├── landing/          # Marketing landing page (static HTML)
 ├── app/              # Next.js dashboard + API routes
 │   ├── src/app/      # Dashboard pages
@@ -106,8 +106,8 @@ agegate/
 
 ```bash
 # 1. Clone
-git clone https://github.com/yourorg/agegate.git
-cd agegate
+git clone https://github.com/yourorg/copply.git
+cd copply
 
 # 2. Install dependencies
 cd app && npm install
@@ -177,7 +177,7 @@ Get verification stats for your account.
 
 Get recent verification events.
 
-Full docs: https://docs.agegate.dev
+Full docs: https://docs.copply.dev
 
 ---
 
@@ -192,13 +192,13 @@ Full docs: https://docs.agegate.dev
 
 ## Support
 
-- **Docs:** https://docs.agegate.dev
-- **Email:** support@agegate.dev
-- **Discord:** https://discord.gg/agegate
-- **Status:** https://status.agegate.dev
+- **Docs:** https://docs.copply.dev
+- **Email:** support@copply.dev
+- **Discord:** https://discord.gg/copply
+- **Status:** https://status.copply.dev
 
 ---
 
 ## License
 
-MIT © AgeGate Inc.
+MIT © Copply Inc.

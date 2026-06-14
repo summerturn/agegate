@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Documentation — AgeGate",
-  description: "Complete documentation for the AgeGate SDK, API, and dashboard.",
+  title: "Documentation — Copply",
+  description: "Complete documentation for the Copply SDK, API, and dashboard.",
 };
 
 export default function DocsPage() {
@@ -13,7 +13,7 @@ export default function DocsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Documentation</h1>
-        <p className="text-muted-foreground">Integrate AgeGate into your application in minutes.</p>
+        <p className="text-muted-foreground">Integrate Copply into your application in minutes.</p>
       </div>
 
       <Card>
@@ -26,7 +26,7 @@ export default function DocsPage() {
 {`curl -X POST ${verifyUrl}
   -H "Content-Type: application/json"
   -d '{
-    "apiKey": "ag_your_key_here",
+    "apiKey": "cp_your_key_here",
     "userId": "user-123",
     "declaredAge": 25,
     "stateHint": "TX"

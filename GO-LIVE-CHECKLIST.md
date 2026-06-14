@@ -1,4 +1,4 @@
-# AgeGate — Go-Live Checklist
+# Copply — Go-Live Checklist
 
 ## Pre-Launch (T-7 Days)
 
@@ -10,7 +10,7 @@
 - [ ] Database backups configured
 - [ ] Vercel project connected to GitHub repo
 - [ ] Vercel environment variables set (see `.env.example`)
-- [ ] Custom domain (`agegate.dev`) configured in Vercel
+- [ ] Custom domain (`copply.dev`) configured in Vercel
 - [ ] SSL certificate auto-provisioned
 - [ ] DNS A/AAAA records pointed to Vercel
 
@@ -37,7 +37,7 @@
 - [ ] PostHog project created & key added
 - [ ] Sentry project created & DSN added
 - [ ] Uptime monitoring (e.g., Pingdom) configured
-- [ ] Status page (`status.agegate.dev`) set up
+- [ ] Status page (`status.copply.dev`) set up
 - [ ] Log drains configured (Datadog / Logflare)
 
 ### Content
@@ -68,7 +68,7 @@
 - [ ] Google Analytics 4 property connected (optional)
 
 ### Support
-- [ ] Support email inbox created (`support@agegate.dev`)
+- [ ] Support email inbox created (`support@copply.dev`)
 - [ ] Help desk (Crisp / Intercom) widget installed
 - [ ] Internal runbook drafted for common issues
 - [ ] On-call rotation defined (if team > 1)
@@ -106,7 +106,7 @@
 - [ ] Fix any critical bugs within 24 hours
 - [ ] Reach out to first 10 paying customers personally
 - [ ] Collect testimonials for landing page
-- [ ] Publish "How we built AgeGate" blog post
+- [ ] Publish "How we built Copply" blog post
 - [ ] Submit to relevant directories (e.g., SaaSworthy, Capterra)
 - [ ] Schedule weekly metrics review
 - [ ] Plan v1.1 feature roadmap based on feedback

@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "name": "agegate-dashboard",
+  "name": "copply-dashboard",
   "framework": "nextjs",
   "buildCommand": "cd app && next build",
   "outputDirectory": "app/.next",
