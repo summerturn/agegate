@@ -1,14 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "name": "agegate-dashboard",
+  "name": "copply-dashboard",
   "framework": "nextjs",
   "buildCommand": "cd app && next build",
   "outputDirectory": "app/.next",
   "installCommand": "cd app && npm install",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_APP_URL": "https://agegate.dev",
+    "NEXT_PUBLIC_APP_URL": "https://copply.dev",
     "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
     "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key"
@@ -27,7 +27,7 @@
   "rewrites": [
     {
       "source": "/docs",
-      "destination": "https://docs.agegate.dev"
+      "destination": "https://docs.copply.dev"
     }
   ],
   "headers": [

@@ -1,7 +1,7 @@
 {
-  "name": "@agegate/sdk",
+  "name": "@copply/sdk",
   "version": "1.0.0",
-  "description": "AgeGate SDK for age verification",
+  "description": "Copply SDK for age verification",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -34,7 +34,7 @@
   },
   "keywords": [
     "age-verification",
-    "age-gate",
+    "copply",
     "compliance",
     "coppa",
     "gdpr"
@@ -42,6 +42,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agegate/sdk"
+    "url": "https://github.com/copply/sdk"
   }
 }

@@ -16,11 +16,11 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { apiKey, userId, reason } = body;
+    const { apiKey } = body;
 
-    if (!apiKey || !userId) {
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: 'MISSING_FIELDS', message: 'apiKey and userId are required' }),
+        JSON.stringify({ error: 'MISSING_API_KEY', message: 'apiKey is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -44,53 +44,39 @@ Deno.serve(async (req) => {
     }
 
     const developerId = keyData.developer_id;
-    const userIdHash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(userId + developerId)))).map(b => b.toString(16).padStart(2, '0')).join('');
 
-    // Generate audit hash before deletion
-    const auditData = `${developerId}:${userIdHash}:${Date.now()}`;
-    const auditHashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(auditData));
-    const deletionHash = Array.from(new Uint8Array(auditHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-
-    // Soft delete verification requests (Texas compliance)
-    const { data: deletedVerifications } = await supabase
-      .from('verification_requests')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('developer_id', developerId)
-      .eq('user_id_hash', userIdHash)
-      .is('deleted_at', null)
-      .select();
-
-    // Hard delete consent records (permanent removal)
-    const { data: deletedConsents } = await supabase
+    // Get consent records with expiry info
+    const { data: consents } = await supabase
       .from('consent_records')
-      .delete()
+      .select('user_id_hash, consent_method, consent_status, expires_at, verified_at')
       .eq('developer_id', developerId)
-      .eq('user_id_hash', userIdHash)
-      .select();
+      .eq('consent_status', 'verified')
+      .order('expires_at', { ascending: true });
 
-    // Log deletion event for audit trail
-    await supabase.from('deletion_logs').insert({
-      developer_id: developerId,
-      user_id_hash: userIdHash,
-      deletion_hash: deletionHash,
-      reason: reason || 'Consent expired / User request / Texas compliance',
-      verifications_deleted: deletedVerifications?.length || 0,
-      consents_deleted: deletedConsents?.length || 0,
+    const now = new Date();
+    const timeline = (consents || []).map((c: any) => {
+      const expiresAt = new Date(c.expires_at);
+      const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        userIdHash: c.user_id_hash.slice(0, 16) + '...',
+        method: c.consent_method,
+        expiresAt: c.expires_at,
+        daysRemaining,
+        status: daysRemaining <= 7 ? 'urgent' : daysRemaining <= 30 ? 'warning' : 'ok',
+      };
     });
 
     return new Response(
       JSON.stringify({
-        success: true,
-        deletionHash,
-        verificationsDeleted: deletedVerifications?.length || 0,
-        consentsDeleted: deletedConsents?.length || 0,
-        message: 'All age verification data deleted per Texas HB 18 requirements',
+        timeline,
+        totalExpiringSoon: timeline.filter((t: any) => t.status === 'urgent').length,
+        totalExpiringThisMonth: timeline.filter((t: any) => t.status === 'warning').length,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (err) {
-    console.error('delete-verification-data error:', err);
+    console.error('consent-expiry-tracker error:', err);
     return new Response(
       JSON.stringify({ error: 'INTERNAL_ERROR', message: err.message || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

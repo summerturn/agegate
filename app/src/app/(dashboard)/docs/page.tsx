@@ -3,8 +3,8 @@ import { DocsSidebar } from "@/components/docs-sidebar";
 import { DocsContent } from "@/components/docs-content";
 
 export const metadata: Metadata = {
-  title: "Documentation — AgeGate",
-  description: "Complete documentation for the AgeGate SDK, API, and dashboard.",
+  title: "Documentation — Copply",
+  description: "Complete documentation for the Copply SDK, API, and dashboard.",
 };
 
 export default function DocsPage() {

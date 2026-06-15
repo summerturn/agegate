@@ -2,17 +2,17 @@
 
 ## Title
 
-Show HN: AgeGate — Drop-in age verification SDK for app compliance
+Show HN: Copply — Drop-in age verification SDK for app compliance
 
 ## URL
 
-https://agegate.dev
+https://copply.dev
 
 ## Body
 
 New laws in Texas (HB 18), California, Louisiana, and Utah now require age verification for apps with mature content. We kept seeing indie devs spend 6+ weeks building this from scratch — document upload, credit-card verification, audit logs, consent management, state-specific rules.
 
-So we built AgeGate: a drop-in SDK + dashboard that handles it all in ~10 minutes.
+So we built Copply: a drop-in SDK + dashboard that handles it all in ~10 minutes.
 
 **What it does:**
 - Embeds a customizable age-verification modal in your app
@@ -75,14 +75,14 @@ If the post gains traction, add these as replies to your own post:
 
 2. **After 6 hours:** "Update: 500+ signups. Most common question is about EU coverage. We're targeting Q3 for AVMSD compliance."
 
-3. **Next day:** "Thank you HN! 1,200 signups, 47 paid conversions. We read every comment and filed 23 feature requests. Here's the public roadmap: https://github.com/yourorg/agegate/issues/roadmap"
+3. **Next day:** "Thank you HN! 1,200 signups, 47 paid conversions. We read every comment and filed 23 feature requests. Here's the public roadmap: https://github.com/yourorg/copply/issues/roadmap"
 
 ## Metrics to Track
 
 - Points at 1h, 3h, 6h, 12h, 24h
 - Position on front page / Ask/Show HN section
 - Comments (quality > quantity)
-- Referral traffic to agegate.dev
+- Referral traffic to copply.dev
 - Signups with `ref=hn` source
 - Conversions to paid
 

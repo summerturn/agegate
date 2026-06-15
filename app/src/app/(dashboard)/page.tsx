@@ -4,8 +4,8 @@ import { createClient } from "@/lib/supabase";
 import { format } from "date-fns";
 
 export const metadata: Metadata = {
-  title: "Dashboard | AgeGate",
-  description: "AgeGate dashboard overview",
+  title: "Dashboard | Copply",
+  description: "Copply dashboard overview",
 };
 
 async function getDashboardStats() {
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome to your AgeGate dashboard. Here is an overview of your activity.
+          Welcome to your Copply dashboard. Here is an overview of your activity.
         </p>
       </div>
 

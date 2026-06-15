@@ -1,16 +1,16 @@
 import { EventEmitter } from 'events';
-import { AgeGateConfig, VerificationResult, VerificationMethod, AgeGateEvent } from './types';
-import { AgeGateError, ValidationError, NetworkError, VerificationError } from './utils/errors';
+import { CopplyConfig, VerificationResult, VerificationMethod, CopplyEvent } from './types';
+import { CopplyError, ValidationError, NetworkError, VerificationError } from './utils/errors';
 
-export class AgeGate extends EventEmitter {
-  private config: AgeGateConfig;
+export class Copply extends EventEmitter {
+  private config: CopplyConfig;
   private supabaseUrl: string;
   private apiKey: string;
   private sessionId: string | null = null;
   private verified: boolean = false;
   private age: number | null = null;
 
-  constructor(config: AgeGateConfig) {
+  constructor(config: CopplyConfig) {
     super();
     this.config = {
       minimumAge: 18,
@@ -39,7 +39,7 @@ export class AgeGate extends EventEmitter {
       }
       this.emit('ready', { verified: false });
     } catch (error) {
-      this.emit('error', new AgeGateError('Failed to initialize AgeGate', error));
+      this.emit('error', new CopplyError('Failed to initialize Copply', error));
     }
   }
 
@@ -79,7 +79,7 @@ export class AgeGate extends EventEmitter {
 
       return result;
     } catch (error) {
-      const verificationError = error instanceof AgeGateError ? error : new VerificationError('Verification failed', error);
+      const verificationError = error instanceof CopplyError ? error : new VerificationError('Verification failed', error);
       this.emit('error', verificationError);
       throw verificationError;
     }
@@ -114,7 +114,7 @@ export class AgeGate extends EventEmitter {
       this.emit('parentalConsentRequested', result);
       return result;
     } catch (error) {
-      const consentError = error instanceof AgeGateError ? error : new AgeGateError('Parental consent request failed', error);
+      const consentError = error instanceof CopplyError ? error : new CopplyError('Parental consent request failed', error);
       this.emit('error', consentError);
       throw consentError;
     }
@@ -148,7 +148,7 @@ export class AgeGate extends EventEmitter {
       this.age = null;
       this.emit('dataDeleted', { sessionId: this.sessionId });
     } catch (error) {
-      const deleteError = error instanceof AgeGateError ? error : new AgeGateError('Failed to delete verification data', error);
+      const deleteError = error instanceof CopplyError ? error : new CopplyError('Failed to delete verification data', error);
       this.emit('error', deleteError);
       throw deleteError;
     }
@@ -215,7 +215,7 @@ export class AgeGate extends EventEmitter {
 
   private getStoredSession(): string | null {
     try {
-      return localStorage.getItem('agegate_session');
+      return localStorage.getItem('copply_session');
     } catch {
       return null;
     }
@@ -224,7 +224,7 @@ export class AgeGate extends EventEmitter {
   private storeSession(sessionId: string | null | undefined): void {
     if (sessionId) {
       try {
-        localStorage.setItem('agegate_session', sessionId);
+        localStorage.setItem('copply_session', sessionId);
       } catch {
         // Ignore storage errors
       }
@@ -233,7 +233,7 @@ export class AgeGate extends EventEmitter {
 
   private clearSession(): void {
     try {
-      localStorage.removeItem('agegate_session');
+      localStorage.removeItem('copply_session');
     } catch {
       // Ignore storage errors
     }

@@ -1,37 +1,40 @@
-import { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase";
-import { DashboardNav } from "@/components/dashboard/DashboardNav";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-
-export const metadata: Metadata = {
-  title: "AgeGate Dashboard",
-  description: "Manage your age verification settings and analytics",
-};
+import { createClient } from '@/lib/supabase'
+import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session) {
-    redirect("/login");
+  if (!user) {
+    redirect('/login')
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
-      <DashboardNav user={session.user} />
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader user={session.user} />
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
-        </main>
-      </div>
+    <div className="min-h-screen bg-background">
+      <nav className="border-b px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <a href="/" className="font-bold text-lg">Copply</a>
+          <a href="/config" className="text-sm hover:text-primary">Config</a>
+          <a href="/logs" className="text-sm hover:text-primary">Logs</a>
+          <a href="/analytics" className="text-sm hover:text-primary">Analytics</a>
+          <a href="/billing" className="text-sm hover:text-primary">Billing</a>
+          <a href="/keys" className="text-sm hover:text-primary">API Keys</a>
+          <a href="/vault" className="text-sm hover:text-primary">Vault</a>
+          <a href="/docs" className="text-sm hover:text-primary">Docs</a>
+        </div>
+        <form action="/auth/signout" method="post">
+          <button type="submit" className="text-sm text-muted-foreground hover:text-foreground">
+            Sign out
+          </button>
+        </form>
+      </nav>
+      <main className="p-6">
+        {children}
+      </main>
     </div>
-  );
+  )
 }

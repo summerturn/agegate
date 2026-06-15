@@ -1,8 +1,8 @@
-# Product Hunt Launch Post — AgeGate
+# Product Hunt Launch Post — Copply
 
 ## Title (60 chars max)
 
-AgeGate — Comply with age verification laws in 10 min
+Copply — Comply with age verification laws in 10 min
 
 ## Tagline (60 chars max)
 
@@ -19,22 +19,22 @@ Drop-in SDK + dashboard for TX, CA, LA, UT compliance
 
 ## Description (260 chars max)
 
-New laws in Texas, California, Louisiana, and Utah require age verification for apps with mature content. AgeGate is a drop-in SDK and dashboard that handles verification, consent capture, audit logging, and state-specific rules — so you can ship compliance in 10 minutes, not 10 weeks.
+New laws in Texas, California, Louisiana, and Utah require age verification for apps with mature content. Copply is a drop-in SDK and dashboard that handles verification, consent capture, audit logging, and state-specific rules — so you can ship compliance in 10 minutes, not 10 weeks.
 
 ## Maker Comment (first comment)
 
 Hey Product Hunt! 👋
 
-We built AgeGate because we kept seeing indie devs get blindsided by new age-verification laws (Texas HB 18 just went live, and more states are coming). Most teams don't have 6 weeks to build document upload, credit-card verification, audit logs, and a consent management system from scratch.
+We built Copply because we kept seeing indie devs get blindsided by new age-verification laws (Texas HB 18 just went live, and more states are coming). Most teams don't have 6 weeks to build document upload, credit-card verification, audit logs, and a consent management system from scratch.
 
 So we made it a 3-line integration:
 
 ```tsx
-<AgeGateProvider apiKey="xxx" region="TX">
-  <AgeGate minimumAge={18}>
+<CopplyProvider apiKey="xxx" region="TX">
+  <Copply minimumAge={18}>
     <YourApp />
-  </AgeGate>
-</AgeGateProvider>
+  </Copply>
+</CopplyProvider>
 ```
 
 Behind the scenes we handle:
@@ -61,7 +61,7 @@ Would love your feedback — especially if you've had to deal with these laws al
 
 ## URL
 
-https://agegate.dev
+https://copply.dev
 
 ## First 3 Comments to Post After Launch
 
@@ -86,7 +86,7 @@ https://agegate.dev
 
 - Upvotes at 1h, 6h, 12h, 24h
 - Comments & replies
-- Referral traffic to agegate.dev
+- Referral traffic to copply.dev
 - Signups from PH source
 - Conversions to paid plan
 - Code redemptions (`PHLAUNCH50`)

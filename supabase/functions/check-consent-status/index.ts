@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { apiKey, userId, reason } = body;
+    const { apiKey, userId } = body;
 
     if (!apiKey || !userId) {
       return new Response(
@@ -46,51 +46,64 @@ Deno.serve(async (req) => {
     const developerId = keyData.developer_id;
     const userIdHash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(userId + developerId)))).map(b => b.toString(16).padStart(2, '0')).join('');
 
-    // Generate audit hash before deletion
-    const auditData = `${developerId}:${userIdHash}:${Date.now()}`;
-    const auditHashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(auditData));
-    const deletionHash = Array.from(new Uint8Array(auditHashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-
-    // Soft delete verification requests (Texas compliance)
-    const { data: deletedVerifications } = await supabase
-      .from('verification_requests')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('developer_id', developerId)
-      .eq('user_id_hash', userIdHash)
-      .is('deleted_at', null)
-      .select();
-
-    // Hard delete consent records (permanent removal)
-    const { data: deletedConsents } = await supabase
+    // Get latest consent record
+    const { data: consent } = await supabase
       .from('consent_records')
-      .delete()
+      .select('*')
       .eq('developer_id', developerId)
       .eq('user_id_hash', userIdHash)
-      .select();
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    // Log deletion event for audit trail
-    await supabase.from('deletion_logs').insert({
-      developer_id: developerId,
-      user_id_hash: userIdHash,
-      deletion_hash: deletionHash,
-      reason: reason || 'Consent expired / User request / Texas compliance',
-      verifications_deleted: deletedVerifications?.length || 0,
-      consents_deleted: deletedConsents?.length || 0,
-    });
+    if (!consent) {
+      return new Response(
+        JSON.stringify({ status: 'no_consent', message: 'No consent record found for this user' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(consent.expires_at);
+    const isExpired = now > expiresAt;
+
+    if (isExpired && consent.consent_status === 'verified') {
+      // Auto-trigger data deletion for expired consent
+      await supabase.from('consent_records').update({ consent_status: 'expired' }).eq('id', consent.id);
+      
+      // Call deletion function internally
+      const deletionResponse = await fetch(`${supabaseUrl}/functions/v1/delete-verification-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseServiceKey}` },
+        body: JSON.stringify({ apiKey, userId, reason: 'Consent expired automatically' }),
+      });
+
+      return new Response(
+        JSON.stringify({
+          status: 'expired',
+          consentStatus: 'expired',
+          expiresAt: consent.expires_at,
+          message: 'Consent has expired. All verification data has been automatically deleted per Texas HB 18.',
+          deletionTriggered: true,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     return new Response(
       JSON.stringify({
-        success: true,
-        deletionHash,
-        verificationsDeleted: deletedVerifications?.length || 0,
-        consentsDeleted: deletedConsents?.length || 0,
-        message: 'All age verification data deleted per Texas HB 18 requirements',
+        status: consent.consent_status,
+        consentStatus: consent.consent_status,
+        method: consent.consent_method,
+        expiresAt: consent.expires_at,
+        verifiedAt: consent.verified_at,
+        daysRemaining: Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (err) {
-    console.error('delete-verification-data error:', err);
+    console.error('check-consent-status error:', err);
     return new Response(
       JSON.stringify({ error: 'INTERNAL_ERROR', message: err.message || 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

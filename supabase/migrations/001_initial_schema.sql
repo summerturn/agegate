@@ -1,5 +1,5 @@
 -- ============================================
--- AgeGate — Age-Verification Compliance SDK
+-- Copply — Age-Verification Compliance SDK
 -- Database Schema + RLS Policies
 -- ============================================
 

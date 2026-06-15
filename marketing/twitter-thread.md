@@ -1,4 +1,4 @@
-# Twitter/X Launch Thread — AgeGate
+# Twitter/X Launch Thread — Copply
 
 ## Tweet 1 (Hook)
 
@@ -6,7 +6,7 @@ New laws in Texas, California, Louisiana, and Utah now require age verification 
 
 Most indie devs don't have 6 weeks to build document upload, credit-card verification, audit logs, and consent management from scratch.
 
-So we built AgeGate. 🧵
+So we built Copply. 🧵
 
 ---
 
@@ -24,16 +24,16 @@ If you're building an app with mature content, this is now your problem whether 
 
 ## Tweet 3 (The Solution)
 
-AgeGate is a drop-in SDK + dashboard.
+Copply is a drop-in SDK + dashboard.
 
 3 lines of code:
 
 ```tsx
-<AgeGateProvider apiKey="xxx" region="TX">
-  <AgeGate minimumAge={18}>
+<CopplyProvider apiKey="xxx" region="TX">
+  <Copply minimumAge={18}>
     <YourApp />
-  </AgeGate>
-</AgeGateProvider>
+  </Copply>
+</CopplyProvider>
 ```
 
 We handle the modal, verification, state rules, audit logs, and consent capture.
@@ -85,7 +85,7 @@ We're live on Product Hunt today!
 
 First 100 people get 50% off Starter or Growth for 6 months with code PHLAUNCH50.
 
-🔗 https://agegate.dev
+🔗 https://copply.dev
 
 Drop a 👋 if you've had to deal with these laws. I'd love to hear your story.
 
@@ -95,7 +95,7 @@ Drop a 👋 if you've had to deal with these laws. I'd love to hear your story.
 
 ### Day 2 — Technical Deep Dive
 
-How AgeGate handles state-specific rules:
+How Copply handles state-specific rules:
 
 Each state has different minimum ages, required methods, and parental consent rules.
 
@@ -103,7 +103,7 @@ We map the user's IP → region → rule set at the edge.
 
 No client-side spoofing possible. Verification happens on Supabase Edge Functions with signed tokens.
 
-Full write-up: https://docs.agegate.dev/architecture
+Full write-up: https://docs.copply.dev/architecture
 
 ---
 
@@ -111,7 +111,7 @@ Full write-up: https://docs.agegate.dev/architecture
 
 "We had 72 hours to comply with Texas HB 18 before our app store review."
 
-AgeGate integration took 2 hours.
+Copply integration took 2 hours.
 
 Document verification flow took 1 hour to customize.
 
@@ -129,7 +129,7 @@ Top 3 feature requests from launch week:
 2. Biometric age estimation (Q3)
 3. Shopify / WordPress plugins (Q2)
 
-Public roadmap: https://github.com/yourorg/agegate/issues/roadmap
+Public roadmap: https://github.com/yourorg/copply/issues/roadmap
 
 Vote for what you need!
 
@@ -160,7 +160,7 @@ Team: 2 people.
 
 ## Media
 
-- Tweet 1: GIF of age-gate modal appearing
+- Tweet 1: GIF of copply modal appearing
 - Tweet 3: Screenshot of code snippet
 - Tweet 4: Dashboard screenshot
 - Tweet 6: Chart of verification volume
